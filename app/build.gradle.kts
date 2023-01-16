@@ -16,10 +16,10 @@ plugins {
 apply(from = "../config/jacoco/modules.kts")
 
 androidApplication {
-    namespace = "com.thoughtworks.ark.feature.home.app"
+    namespace = "com.thoughtworks.ark.feature.notifications.app"
 
     defaultConfig {
-        applicationId = "com.thoughtworks.ark.feature.home.app"
+        applicationId = "com.thoughtworks.ark.feature.notifications.app"
         versionCode = 1
         versionName = "1.0.0"
 
@@ -30,7 +30,7 @@ androidApplication {
 }
 
 dependencies {
-    implementation(project(":feature-home"))
+    implementation(project(":feature-notifications"))
 
     implementation(libs.bundles.kotlin)
     implementation(libs.bundles.android)

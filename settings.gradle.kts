@@ -24,7 +24,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ARK-Android-Feature-Home"
+rootProject.name = "ARK-Android-Feature-Notifications"
 include(":app")
-include(":feature-home")
-include(":feature-home-api")
+include(":feature-notifications")
+include(":feature-notifications-api")
