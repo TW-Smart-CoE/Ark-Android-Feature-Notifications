@@ -19,3 +19,26 @@ apply(from = "config/jacoco/project.kts")
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }
+
+val libraryPluginId: String = libs.plugins.library.get().pluginId
+val publishGroupId = "com.thoughtworks.ark"
+val publishVersion = "1.0-SNAPSHOT"
+
+subprojects {
+    apply(plugin = "maven-publish")
+    configure<PublishingExtension> {
+        afterEvaluate {
+            plugins.withId(libraryPluginId) {
+                publications {
+                    create<MavenPublication>("maven") {
+                        afterEvaluate {
+                            from(components.getByName("prodRelease"))
+                            groupId = publishGroupId
+                            version = publishVersion
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
