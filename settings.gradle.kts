@@ -13,14 +13,23 @@ pluginManagement {
         google()
         mavenCentral()
         maven("https://jitpack.io")
+        mavenLocal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
         maven("https://jitpack.io")
+        mavenLocal()
+    }
+
+    versionCatalogs {
+        create("libs") {
+            from("com.thoughtworks.ark:VersionCatalog:1.0-SNAPSHOT")
+        }
     }
 }
 
