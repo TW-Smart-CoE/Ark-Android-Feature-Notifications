@@ -1,3 +1,17 @@
+@file:Suppress("DSL_SCOPE_VIOLATION", "UnstableApiUsage")
+
+import java.util.Properties
+
+fun readConfig(name: String): String {
+    return settings.extensions.extraProperties.properties[name] as String?
+        ?: System.getenv(name) ?: ""
+}
+
+val buildConfigProperties: Properties
+    get() = Properties().apply {
+        load(File(rootDir, "buildconfig.properties").reader())
+    }
+
 pluginManagement {
     resolutionStrategy {
         eachPlugin {
@@ -24,11 +38,21 @@ dependencyResolutionManagement {
         mavenCentral()
         maven("https://jitpack.io")
         mavenLocal()
+        maven {
+            url = uri(readConfig("MAVEN_REPO"))
+            isAllowInsecureProtocol = true
+            credentials {
+                username = readConfig("MAVEN_USER")
+                password = readConfig(("MAVEN_PWD"))
+            }
+        }
     }
+
+    val catalogVersion = buildConfigProperties["PLUGIN_CATALOG_VERSION"]
 
     versionCatalogs {
         create("libs") {
-            from("com.thoughtworks.ark:VersionCatalog:1.0-SNAPSHOT")
+            from("com.thoughtworks.ark:versioncatalog:${catalogVersion}")
         }
     }
 }

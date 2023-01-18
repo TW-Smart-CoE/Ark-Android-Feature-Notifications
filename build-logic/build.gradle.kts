@@ -1,4 +1,5 @@
-@Suppress("DSL_SCOPE_VIOLATION")
+@file:Suppress("DSL_SCOPE_VIOLATION", "UnstableApiUsage")
+
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.detekt)
