@@ -83,11 +83,24 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy Snapshot') {
             when { expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } }
             steps {
                 script {
-                    sh 'echo deploy'
+                    sh 'bundle exec fastlane publish_snapshot'
+                }
+            }
+        }
+        stage('Deploy Release') {
+            when {
+                allOf {
+                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+                    branch pattern: "release(-v.+)?", comparator: "REGEXP"
+                }
+            }
+            steps {
+                script {
+                    sh 'bundle exec fastlane publish_release'
                 }
             }
         }
