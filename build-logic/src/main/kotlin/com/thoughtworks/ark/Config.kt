@@ -6,4 +6,7 @@ object Config {
 
     const val APP_HOST_KEY = "APP_HOST"
     const val APP_HOST_VALUE = "app"
+
+    // maven group config
+    const val MAVEN_GROUP_ID = "com.thoughtworks.ark"
 }

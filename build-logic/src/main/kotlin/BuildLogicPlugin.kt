@@ -1,4 +1,3 @@
-import com.thoughtworks.ark.loadProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
@@ -14,15 +13,11 @@ class BuildLogicPlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.readConfig(name: String): String {
-        return project.properties[name] as String? ?: System.getenv(name) ?: ""
+    private fun Project.readConfig(name: String, defaultValue: String = ""): String {
+        return project.properties[name] as String? ?: System.getenv(name) ?: defaultValue
     }
 
     private fun Project.configMaven() {
-        val mavenProperties = project.loadProperties("buildconfig.properties")
-        val publishGroupId = mavenProperties["PUBLISH_GROUP_ID"]?.toString() ?: ""
-        val publishVersion = mavenProperties["PUBLISH_VERSION"]?.toString() ?: ""
-
         afterEvaluate {
             plugins.withId("com.android.library") {
                 apply(plugin = "maven-publish")
@@ -38,19 +33,24 @@ class BuildLogicPlugin : Plugin<Project> {
                         }
                     }
                     publications {
-                        create<MavenPublication>("snapshot") {
+                        create<MavenPublication>("lib") {
                             afterEvaluate {
-                                from(components.getByName("prodRelease"))
-                                groupId = publishGroupId
-                                version = "$publishVersion-SNAPSHOT"
-                            }
-                        }
+                                val buildEnv = readConfig("buildEnv")
 
-                        create<MavenPublication>("release") {
-                            afterEvaluate {
-                                from(components.getByName("prodRelease"))
-                                groupId = publishGroupId
-                                version = publishVersion
+                                val componentName = buildEnv.ifEmpty { "dev" }
+
+                                from(components.getByName("${componentName}Release"))
+                                groupId = "com.thoughtworks.ark"
+                                version = "1.0.0"
+
+                                val newVersion = readConfig("publishVersion")
+                                if (newVersion.isNotEmpty()) {
+                                    version = newVersion
+                                }
+
+                                if (buildEnv.isNotEmpty()) {
+                                    artifactId += "-$buildEnv"
+                                }
                             }
                         }
                     }

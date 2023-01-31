@@ -8,7 +8,10 @@ pipeline {
     }
     parameters {
         string(name: 'APP_BUILD_FOLDER', defaultValue: 'app/build', description: 'Application build output folder')
-        choice(name: 'APP_BUILD_ENV', choices: ['dev', 'uat', 'staging'], description: 'Pipeline build env: dev/uat/staging, default is dev')
+        choice(name: 'APP_BUILD_ENV', choices: ['dev', 'uat', 'staging', 'prod'], description: 'Pipeline build env: dev/uat/staging/prod, default is dev')
+        booleanParam(name: 'ENABLE_PUBLISH', defaultValue: true, description: 'Enable publish to maven')
+        string(name: 'PUBLISH_VERSION', defaultValue: '1.0.0', description: 'Set publish version')
+        booleanParam(name: 'IS_SNAPSHOT', defaultValue: true, description: 'Set whether snapshot')
     }
     options {
         // Stop the build early in case of compile or test failures
@@ -83,27 +86,24 @@ pipeline {
                 }
             }
         }
-        stage('Deploy Snapshot') {
-            when { expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } }
-            steps {
-                script {
-                    sh 'bundle exec fastlane publish_snapshot'
-                }
-            }
-        }
-        stage('Deploy Release') {
+        stage('Publish to maven') {
             when {
                 allOf {
-                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-                    branch pattern: "release(-v.+)?", comparator: "REGEXP"
+                    expression { params.ENABLE_PUBLISH == true }
                 }
             }
             steps {
                 script {
-                    sh 'bundle exec fastlane publish_release'
+                    def version = params.PUBLISH_VERSION
+                    if (params.IS_SNAPSHOT == true) {
+                        version += "-SNAPSHOT"
+                    }
+                    sh "bundle exec fastlane publish_api_with_env buildEnv:${params.APP_BUILD_ENV} publishVersion:${version}"
+                    sh "bundle exec fastlane publish_feature_with_env buildEnv:${params.APP_BUILD_ENV} publishVersion:${version}"
                 }
             }
         }
+
         stage('Production') {
             when { branch pattern: "release(-v.+)?", comparator: "REGEXP"}
             steps {

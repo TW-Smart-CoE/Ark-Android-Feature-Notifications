@@ -66,14 +66,47 @@ platform :android do
     gradle(task: "devDebugCoverage")
   end
 
-  desc "Publish snapshot"
-  lane :publish_snapshot do
-    gradle(task: "publishSnapshotPublicationToMavenRepository")
+  desc "Publish single env feature to maven"
+  lane :publish_feature_with_env do |options|
+    buildEnv = options[:buildEnv]
+    publishVersion = options[:publishVersion]
+
+    gradle(
+      task: ":feature-notifications:publish",
+      properties: {
+          "buildEnv" => buildEnv,
+          "publishVersion" => publishVersion
+      }
+    )
   end
 
-  desc "Publish release"
-  lane :publish_release do
-    gradle(task: "publishReleasePublicationToMavenRepository")
+  desc "Publish single env feature api to maven"
+  lane :publish_api_with_env do |options|
+    buildEnv = options[:buildEnv]
+    publishVersion = options[:publishVersion]
+    gradle(
+      task: ":feature-notifications-api:publish",
+      properties: {
+          "buildEnv" => buildEnv,
+          "publishVersion" => publishVersion
+      }
+    )
+  end
+
+  desc "Publish all env feature to maven"
+  lane :publish_feature do |options|
+    publish_feature_with_env(buildEnv: "dev", publishVersion: options[:publishVersion])
+    publish_feature_with_env(buildEnv: "uat", publishVersion: options[:publishVersion])
+    publish_feature_with_env(buildEnv: "staging", publishVersion: options[:publishVersion])
+    publish_feature_with_env(buildEnv: "prod", publishVersion: options[:publishVersion])
+  end
+
+  desc "Publish all env feature api to maven"
+  lane :publish_api do |options|
+    publish_api_with_env(buildEnv: "dev", publishVersion: options[:publishVersion])
+    publish_api_with_env(buildEnv: "uat", publishVersion: options[:publishVersion])
+    publish_api_with_env(buildEnv: "staging", publishVersion: options[:publishVersion])
+    publish_api_with_env(buildEnv: "prod", publishVersion: options[:publishVersion])
   end
 
   desc "Deploy on Fir.im"
