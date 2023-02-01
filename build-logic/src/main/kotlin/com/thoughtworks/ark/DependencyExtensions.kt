@@ -1,6 +1,6 @@
 package com.thoughtworks.ark
 
-import com.thoughtworks.ark.Config.MAVEN_GROUP_ID
+import com.thoughtworks.ark.MavenConfig.MAVEN_GROUP_ID
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.kotlin.dsl.create
 
